@@ -1,0 +1,9 @@
+<resources>
+    <string name="save_a_copy">Save a copy</string>
+    <string name="notification_channel_progress">Progress</string>
+    <string name="notification_channel_result">Result</string>
+    <string name="notification_working_title">Working…</string>
+    <string name="notification_saving_title">Saving copy of %s</string>
+    <string name="notification_saved_title">Copy saved</string>
+    <string name="notification_saved_text">The copy of %1$s has been saved to %2$s</string>
+</resources>
