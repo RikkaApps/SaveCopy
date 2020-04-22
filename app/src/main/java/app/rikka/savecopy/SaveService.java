@@ -155,7 +155,6 @@ public class SaveService extends IntentService {
             // TODO data is null
             return;
         }
-        int id = data.toString().hashCode();
 
         ContentResolver cr = context.getContentResolver();
 
@@ -173,12 +172,6 @@ public class SaveService extends IntentService {
             }
             cursor.close();
         }
-
-        notificationTitle = Html.fromHtml(getString(R.string.notification_saving_title,
-                String.format("<font face=\"sans-serif-medium\">%s</font>", displayName)));
-        builder = newNotificationBuilder(NOTIFICATION_CHANNEL_PROGRESS, notificationTitle, null);
-        builder.setProgress(100, 0, true);
-        scheduleNotification(id, builder);
 
         InputStream is = cr.openInputStream(data);
         if (is == null) {
@@ -208,6 +201,13 @@ public class SaveService extends IntentService {
             // TODO can't insert
             return;
         }
+
+        int id = uri.toString().hashCode();
+        notificationTitle = Html.fromHtml(getString(R.string.notification_saving_title,
+                String.format("<font face=\"sans-serif-medium\">%s</font>", displayName)));
+        builder = newNotificationBuilder(NOTIFICATION_CHANNEL_PROGRESS, notificationTitle, null);
+        builder.setProgress(100, 0, true);
+        scheduleNotification(id, builder);
 
         ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "rw");
         if (pfd == null) {
