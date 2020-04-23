@@ -85,6 +85,7 @@ public class SaveService extends IntentService {
         channel.enableLights(false);
         channel.enableVibration(false);
         channel.setBypassDnd(true);
+        channel.setShowBadge(false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             channel.setAllowBubbles(false);
         }
@@ -98,6 +99,7 @@ public class SaveService extends IntentService {
         channel.enableLights(false);
         channel.enableVibration(false);
         channel.setBypassDnd(true);
+        channel.setShowBadge(false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             channel.setAllowBubbles(false);
         }
