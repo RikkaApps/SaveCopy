@@ -11,4 +11,6 @@
     <string name="dialog_no_permission_title">Requires storage permission</string>
     <string name="dialog_no_permission_message">To saving copies, storage permission is necessary.\nPlease grant permission and try again.</string>
     <string name="dialog_no_permission_button_app_info">App info</string>
+    <string name="notification_action_open">Open</string>
+    <string name="open_with">Open with</string>
 </resources>

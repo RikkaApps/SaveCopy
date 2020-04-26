@@ -11,4 +11,6 @@
     <string name="dialog_no_permission_title">需要儲存權限</string>
     <string name="dialog_no_permission_message">要保存副本，必須具有儲存權限。\n請授予權限後重試。</string>
     <string name="dialog_no_permission_button_app_info">應用程式資訊</string>
+    <string name="notification_action_open">開啟</string>
+    <string name="open_with">開啟方式</string>
 </resources>

@@ -5,11 +5,13 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -310,6 +312,14 @@ public class SaveService extends IntentService {
             builder.setPriority(Notification.PRIORITY_HIGH)
                     .setSound(Uri.EMPTY)
                     .setVibrate(new long[0]);
+        }
+        if (!"application/vnd.android.package-archive".equals(intent.getType())) {
+            Intent openIntent = Intent.createChooser(new Intent(intent).setComponent(null).setPackage(null), getString(R.string.open_with));
+            PendingIntent openPendingIntent = PendingIntent.getActivity(this, id, openIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            builder.addAction(new Notification.Action.Builder(
+                    Icon.createWithResource(this, R.drawable.ic_notification_open_24),
+                    getString(R.string.notification_action_open),
+                    openPendingIntent).build());
         }
         scheduleNotification(id, builder);
     }
