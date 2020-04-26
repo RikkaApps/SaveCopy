@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -314,7 +315,11 @@ public class SaveService extends IntentService {
                     .setVibrate(new long[0]);
         }
         if (!"application/vnd.android.package-archive".equals(intent.getType())) {
-            Intent openIntent = Intent.createChooser(new Intent(intent).setComponent(null).setPackage(null), getString(R.string.open_with));
+            Intent newIntent = new Intent(intent).setComponent(null).setPackage(null);
+            Intent openIntent = Intent.createChooser(newIntent, getString(R.string.open_with));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                openIntent.putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, new ComponentName[]{ComponentName.createRelative(this, SaveActivity.class.getName())});
+            }
             PendingIntent openPendingIntent = PendingIntent.getActivity(this, id, openIntent, PendingIntent.FLAG_CANCEL_CURRENT);
             builder.addAction(new Notification.Action.Builder(
                     Icon.createWithResource(this, R.drawable.ic_notification_open_24),
