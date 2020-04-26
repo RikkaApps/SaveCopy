@@ -5,5 +5,7 @@
     <string name="notification_working_title">Working…</string>
     <string name="notification_saving_title">Saving copy of %s</string>
     <string name="notification_saved_title">Copy saved</string>
-    <string name="notification_saved_text">The copy of %1$s has been saved to %2$s</string>
+    <string name="notification_saved_text">The copy of %1$s has been saved to %2$s.</string>
+    <string name="notification_error_title">Something went wrong</string>
+    <string name="notification_error_text">In most cases, the problem is not cause by this app.</string>
 </resources>

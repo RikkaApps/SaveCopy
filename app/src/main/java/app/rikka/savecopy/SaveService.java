@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.Html;
@@ -30,9 +29,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class SaveService extends IntentService {
+
+    private static final String TAG = "SaveService";
 
     private static final String NOTIFICATION_CHANNEL_PROGRESS = "progress";
     private static final String NOTIFICATION_CHANNEL_RESULT = "result";
@@ -40,7 +40,6 @@ public class SaveService extends IntentService {
 
     private Handler mHandler;
     private NotificationManager mNotificationManager;
-    private Map<Integer, Notification> m;
 
     public SaveService() {
         super("save-thread");
@@ -120,11 +119,6 @@ public class SaveService extends IntentService {
         return builder;
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        onSave(intent);
-    }
-
     private void scheduleNotification(int id, Notification.Builder builder) {
         scheduleNotification(id, builder, 0);
     }
@@ -140,22 +134,35 @@ public class SaveService extends IntentService {
         }
     }
 
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        onSave(intent);
+    }
+
     private void onSave(Intent intent) {
+        int[] id = new int[]{Integer.MIN_VALUE};
         try {
-            doSave(intent);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            doSave(intent, id);
+        } catch (Throwable e) {
+            Log.e(TAG, "save " + intent.getData(), e);
+
+            Throwable cause = e.getCause() == null ? e : e.getCause();
+            CharSequence notificationTitle = getString(R.string.notification_error_title);
+            CharSequence notificationText = getString(R.string.notification_error_text) + "\n\n" + cause.getMessage();
+
+            Notification.Builder builder = newNotificationBuilder(NOTIFICATION_CHANNEL_RESULT, notificationTitle, notificationText)
+                    .setStyle(new Notification.BigTextStyle().bigText(notificationText));
+            scheduleNotification(id[0], builder);
         }
     }
 
-    private void doSave(Intent intent) throws IOException, InterruptedException {
+    private void doSave(Intent intent, int[] _id) throws IOException, SaveException {
         Context context = this;
         CharSequence notificationTitle, notificationText;
         Notification.Builder builder;
         Uri data = intent.getData();
         if (data == null) {
-            // TODO data is null
-            return;
+            throw new SaveException("data is null");
         }
 
         ContentResolver cr = context.getContentResolver();
@@ -177,8 +184,7 @@ public class SaveService extends IntentService {
 
         InputStream is = cr.openInputStream(data);
         if (is == null) {
-            // TODO can't open
-            return;
+            throw new SaveException("can't open data");
         }
 
         ContentValues values;
@@ -200,24 +206,22 @@ public class SaveService extends IntentService {
         }
         Uri uri = cr.insert(target, values);
         if (uri == null) {
-            // TODO can't insert
-            return;
+            throw new SaveException("can't insert");
         }
-
         int id = uri.toString().hashCode();
+        _id[0] = id;
+
         notificationTitle = Html.fromHtml(getString(R.string.notification_saving_title,
                 String.format("<font face=\"sans-serif-medium\">%s</font>", displayName)));
         builder = newNotificationBuilder(NOTIFICATION_CHANNEL_PROGRESS, notificationTitle, null);
         builder.setProgress(100, 0, true);
         scheduleNotification(id, builder);
 
-        ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "rw");
-        if (pfd == null) {
-            // TODO can't open
-            return;
+        OutputStream os = cr.openOutputStream(uri, "w");
+        if (os == null) {
+            throw new SaveException("can't open output");
         }
 
-        OutputStream os = new ParcelFileDescriptor.AutoCloseOutputStream(pfd);
         long writeSize = 0;
         byte[] b = new byte[8192];
         for (int r; (r = is.read(b)) != -1; ) {
@@ -233,7 +237,8 @@ public class SaveService extends IntentService {
         }
         os.close();
         is.close();
-        Log.i("Save", writeSize + "/" + totalSize);
+
+        Log.d(TAG, writeSize + "/" + totalSize);
 
         if (Build.VERSION.SDK_INT >= 29) {
             values = new ContentValues();

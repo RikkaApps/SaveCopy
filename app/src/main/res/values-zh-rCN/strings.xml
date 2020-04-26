@@ -5,5 +5,7 @@
     <string name="notification_working_title">正在工作中…</string>
     <string name="notification_saving_title">正在保存 %s 的副本</string>
     <string name="notification_saved_title">已保存副本</string>
-    <string name="notification_saved_text">%1$s 的副本已被保存至 %2$s</string>
+    <string name="notification_saved_text">%1$s 的副本已被保存至 %2$s。</string>
+    <string name="notification_error_title">出现了问题</string>
+    <string name="notification_error_text">在大多数情况下，问题不由此应用引起。</string>
 </resources>

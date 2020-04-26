@@ -1,0 +1,11 @@
+<resources>
+    <string name="save_a_copy">儲存副本</string>
+    <string name="notification_channel_progress">進度</string>
+    <string name="notification_channel_result">結果</string>
+    <string name="notification_working_title">正在工作中…</string>
+    <string name="notification_saving_title">正在儲存 %s 的副本</string>
+    <string name="notification_saved_title">已儲存副本</string>
+    <string name="notification_saved_text">%1$s 的副本已被儲存至 %2$s。</string>
+    <string name="notification_error_title">出現了問題</string>
+    <string name="notification_error_text">在大多數情況下，問題不由此應用程式引起。</string>
+</resources>
