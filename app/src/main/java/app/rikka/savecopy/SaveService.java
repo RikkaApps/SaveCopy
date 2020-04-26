@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SaveService extends IntentService {
 
@@ -169,17 +170,76 @@ public class SaveService extends IntentService {
 
         String displayName = "unknown-" + System.currentTimeMillis();
         long totalSize = -1;
-        Cursor cursor = cr.query(data, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int displayNameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            if (displayNameIndex != -1) {
-                displayName = cursor.getString(displayNameIndex);
+        try (Cursor cursor = cr.query(data, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int displayNameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (displayNameIndex != -1) {
+                    displayName = cursor.getString(displayNameIndex);
+                }
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex != -1) {
+                    totalSize = cursor.getLong(sizeIndex);
+                }
             }
-            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-            if (sizeIndex != -1) {
-                totalSize = cursor.getLong(sizeIndex);
+        }
+        Uri target;
+        if (Build.VERSION.SDK_INT >= 29) {
+            target = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+        } else {
+            target = MediaStore.Files.getContentUri("external");
+        }
+
+        if (Build.VERSION.SDK_INT <= 29) {
+            // before Android 11 (actually includes 11 DP2), MediaStore can't name the file correctly, find a name by ourselves
+
+            String[] displayParts = FileUtils.spiltFileName(displayName);
+
+            String[] projection = Build.VERSION.SDK_INT >= 29
+                    ? new String[]{MediaStore.MediaColumns.DISPLAY_NAME}
+                    : new String[]{MediaStore.MediaColumns.DISPLAY_NAME, MediaStore.MediaColumns.DATA};
+            String selection = MediaStore.MediaColumns.DISPLAY_NAME + " like ?";
+            String[] selectionArgs = new String[]{displayParts[0] + "%"};
+
+            List<String> existingNames = new ArrayList<>();
+            try (Cursor cursor = cr.query(target, projection, selection, selectionArgs, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int displayNameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                    int dataIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
+                    do {
+                        String existingName;
+                        if (dataIndex != -1) {
+                            File file = new File(cursor.getString(dataIndex));
+                            String parent = file.getParent();
+                            if (parent == null || !parent.startsWith(Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS + File.separator)) {
+                                continue;
+                            }
+                            existingName = file.getName();
+                        } else if (displayNameIndex != -1) {
+                            existingName = cursor.getString(displayNameIndex);
+                        } else {
+                            existingName = null;
+                        }
+                        if (existingName != null) {
+                            String[] existingParts = FileUtils.spiltFileName(existingName);
+                            boolean add = false;
+                            if (existingName.equals(displayName)) {
+                                add = true;
+                            } else if (displayParts[1].equals(existingParts[1])) {
+                                add = existingParts[0].matches(String.format("%s \\(\\d+\\)", displayParts[0].replaceAll("([\\\\+*?\\[\\](){}|.^$])", "\\\\$1")));
+                            }
+                            if (add) {
+                                existingNames.add(existingName);
+                            }
+                        }
+                    } while (cursor.moveToNext());
+                }
             }
-            cursor.close();
+            if (!existingNames.isEmpty()) {
+                int index = 1;
+                while (existingNames.contains(displayName)) {
+                    displayName = String.format(Locale.ENGLISH, "%s (%d)%s", displayParts[0], index++, displayParts[1]);
+                }
+            }
         }
 
         InputStream is = cr.openInputStream(data);
@@ -198,12 +258,6 @@ public class SaveService extends IntentService {
         }
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
 
-        Uri target;
-        if (Build.VERSION.SDK_INT >= 29) {
-            target = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-        } else {
-            target = MediaStore.Files.getContentUri("external");
-        }
         Uri uri = cr.insert(target, values);
         if (uri == null) {
             throw new SaveException("can't insert");
