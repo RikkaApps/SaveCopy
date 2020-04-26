@@ -61,7 +61,7 @@ public class SaveService extends IntentService {
             return false;
         });
 
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager = getSystemService(NotificationManager.class);
         //noinspection ConstantConditions
         onCreateNotificationChannel(mNotificationManager);
 

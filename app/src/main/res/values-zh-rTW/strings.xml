@@ -5,7 +5,10 @@
     <string name="notification_working_title">正在工作中…</string>
     <string name="notification_saving_title">正在儲存 %s 的副本</string>
     <string name="notification_saved_title">已儲存副本</string>
-    <string name="notification_saved_text">%1$s 的副本已被儲存至 %2$s。</string>
+    <string name="notification_saved_text">%1$s 已被複制到 %2$s。</string>
     <string name="notification_error_title">出現了問題</string>
     <string name="notification_error_text">在大多數情況下，問題不由此應用程式引起。</string>
+    <string name="dialog_no_permission_title">需要儲存權限</string>
+    <string name="dialog_no_permission_message">要保存副本，必須具有儲存權限。\n請授予權限後重試。</string>
+    <string name="dialog_no_permission_button_app_info">應用程式資訊</string>
 </resources>

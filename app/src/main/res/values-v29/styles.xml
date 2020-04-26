@@ -1,0 +1,3 @@
+<resources>
+    <style name="SaveActivity" parent="@android:style/Theme.NoDisplay" />
+</resources>
