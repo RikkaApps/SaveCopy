@@ -4,13 +4,13 @@
     <string name="notification_channel_result">Result</string>
     <string name="notification_working_title">Working…</string>
     <string name="notification_saving_title">Saving copy of %s</string>
-    <string name="notification_saved_title">Copy saved</string>
-    <string name="notification_saved_text">%1$s has been copied to %2$s.</string>
+    <string name="notification_saved_title">Saved copy for %1$s</string>
+    <string name="notification_saved_text">The copy is located at %1$s</string>
     <string name="notification_error_title">Something went wrong</string>
     <string name="notification_error_text">In most cases, the problem is not cause by this app.</string>
     <string name="dialog_no_permission_title">Requires storage permission</string>
     <string name="dialog_no_permission_message">To saving copies, storage permission is necessary.\nPlease grant permission and try again.</string>
     <string name="dialog_no_permission_button_app_info">App info</string>
-    <string name="notification_action_open">Open</string>
+    <string name="notification_action_open">Open copy</string>
     <string name="open_with">Open with</string>
 </resources>

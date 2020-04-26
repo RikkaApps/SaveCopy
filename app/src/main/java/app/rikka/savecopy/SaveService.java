@@ -185,11 +185,11 @@ public class SaveService extends IntentService {
                 }
             }
         }
-        Uri target;
+        Uri tableUri;
         if (Build.VERSION.SDK_INT >= 29) {
-            target = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+            tableUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
         } else {
-            target = MediaStore.Files.getContentUri("external");
+            tableUri = MediaStore.Files.getContentUri("external");
         }
 
         if (Build.VERSION.SDK_INT <= 29) {
@@ -204,7 +204,7 @@ public class SaveService extends IntentService {
             String[] selectionArgs = new String[]{displayParts[0] + "%"};
 
             List<String> existingNames = new ArrayList<>();
-            try (Cursor cursor = cr.query(target, projection, selection, selectionArgs, null)) {
+            try (Cursor cursor = cr.query(tableUri, projection, selection, selectionArgs, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     int displayNameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
                     int dataIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
@@ -261,11 +261,11 @@ public class SaveService extends IntentService {
         }
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
 
-        Uri uri = cr.insert(target, values);
-        if (uri == null) {
+        Uri fileUri = cr.insert(tableUri, values);
+        if (fileUri == null) {
             throw new SaveException("can't insert");
         }
-        int id = uri.toString().hashCode();
+        int id = fileUri.toString().hashCode();
         _id[0] = id;
 
         notificationTitle = Html.fromHtml(getString(R.string.notification_saving_title,
@@ -274,7 +274,7 @@ public class SaveService extends IntentService {
         builder.setProgress(100, 0, true);
         scheduleNotification(id, builder);
 
-        OutputStream os = cr.openOutputStream(uri, "w");
+        OutputStream os = cr.openOutputStream(fileUri, "w");
         if (os == null) {
             throw new SaveException("can't open output");
         }
@@ -300,13 +300,22 @@ public class SaveService extends IntentService {
         if (Build.VERSION.SDK_INT >= 29) {
             values = new ContentValues();
             values.put(MediaStore.Images.ImageColumns.IS_PENDING, false);
-            cr.update(uri, values, null, null);
+            cr.update(fileUri, values, null, null);
         }
 
-        notificationTitle = getString(R.string.notification_saved_title);
+        String newName= displayName;
+        try (Cursor cursor = cr.query(fileUri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int displayNameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (displayNameIndex != -1) {
+                    newName = cursor.getString(displayNameIndex);
+                }
+            }
+        }
+
+        notificationTitle = getString(R.string.notification_saved_title, displayName);
         notificationText = Html.fromHtml(getString(R.string.notification_saved_text,
-                String.format("<font face=\"sans-serif-medium\">%s</font>", displayName),
-                String.format("<font face=\"sans-serif-medium\">%s</font>", Environment.DIRECTORY_DOWNLOADS)));
+                String.format("<font face=\"sans-serif-medium\">%s/%s</font>", Environment.DIRECTORY_DOWNLOADS, newName)));
         builder = newNotificationBuilder(NOTIFICATION_CHANNEL_RESULT, notificationTitle, notificationText)
                 .setStyle(new Notification.BigTextStyle().bigText(notificationText));
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
