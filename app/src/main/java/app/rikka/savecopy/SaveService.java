@@ -324,7 +324,13 @@ public class SaveService extends IntentService {
                     .setVibrate(new long[0]);
         }
         if (!"application/vnd.android.package-archive".equals(intent.getType())) {
-            Intent newIntent = new Intent(intent).setComponent(null).setPackage(null);
+            String type = intent.getType();
+            Intent newIntent = new Intent(intent)
+                    .setComponent(null)
+                    .setPackage(null)
+                    .setDataAndType(fileUri, type)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
             Intent openIntent = Intent.createChooser(newIntent, getString(R.string.open_with));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 openIntent.putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, new ComponentName[]{ComponentName.createRelative(this, SaveActivity.class.getName())});
