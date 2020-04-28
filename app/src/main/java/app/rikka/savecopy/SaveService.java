@@ -36,6 +36,8 @@ import java.util.Locale;
 
 public class SaveService extends IntentService {
 
+    static final String CALLING_PACKAGE_LABEL = "callingPackageLabel";
+
     private static final String TAG = "SaveService";
 
     private static final String NOTIFICATION_CHANNEL_PROGRESS = "progress";
@@ -112,6 +114,7 @@ public class SaveService extends IntentService {
 
     public Notification.Builder newNotificationBuilder(String channelId, CharSequence title, CharSequence text) {
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? new Notification.Builder(this, channelId) : new Notification.Builder(this);
+        //noinspection deprecation
         builder.setSmallIcon(R.drawable.ic_notification_24)
                 .setColor(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? getColor(R.color.notification) : getResources().getColor(R.color.notification));
         if (title != null) {
@@ -144,9 +147,10 @@ public class SaveService extends IntentService {
     }
 
     private void onSave(Intent intent) {
+        String callingLabel = intent.getStringExtra(CALLING_PACKAGE_LABEL);
         int[] id = new int[]{Integer.MIN_VALUE};
         try {
-            doSave(intent, id);
+            doSave(intent, id, callingLabel);
         } catch (Throwable e) {
             Log.e(TAG, "save " + intent.getData(), e);
 
@@ -160,7 +164,7 @@ public class SaveService extends IntentService {
         }
     }
 
-    private void doSave(Intent intent, int[] _id) throws IOException, SaveException {
+    private void doSave(Intent intent, int[] _id, String callingLabel) throws IOException, SaveException {
         Context context = this;
         CharSequence notificationTitle, notificationText;
         Notification.Builder builder;
@@ -185,12 +189,7 @@ public class SaveService extends IntentService {
                 }
             }
         }
-        Uri tableUri;
-        if (Build.VERSION.SDK_INT >= 29) {
-            tableUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-        } else {
-            tableUri = MediaStore.Files.getContentUri("external");
-        }
+        Uri tableUri = MediaStore.Files.getContentUri("external");
 
         if (Build.VERSION.SDK_INT <= 29) {
             // before Android 11 (actually includes 11 DP2), MediaStore can't name the file correctly, find a name by ourselves
@@ -253,11 +252,12 @@ public class SaveService extends IntentService {
         ContentValues values;
         values = new ContentValues();
 
+        String download = callingLabel != null ? Environment.DIRECTORY_DOWNLOADS + File.separator + callingLabel : Environment.DIRECTORY_DOWNLOADS;
         if (Build.VERSION.SDK_INT >= 29) {
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, download);
             values.put(MediaStore.MediaColumns.IS_PENDING, true);
         } else {
-            File parent = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS);
+            File parent = new File(Environment.getExternalStorageDirectory(), download);
             values.put(MediaStore.MediaColumns.DATA, new File(parent, displayName).getPath());
 
             // on lower versions, if the folder doesn't exist, insert will fail
@@ -322,7 +322,7 @@ public class SaveService extends IntentService {
 
         notificationTitle = getString(R.string.notification_saved_title, displayName);
         notificationText = Html.fromHtml(getString(R.string.notification_saved_text,
-                String.format("<font face=\"sans-serif-medium\">%s/%s</font>", Environment.DIRECTORY_DOWNLOADS, newName)));
+                String.format("<font face=\"sans-serif-medium\">%s/%s</font>", download, newName)));
         builder = newNotificationBuilder(NOTIFICATION_CHANNEL_RESULT, notificationTitle, notificationText)
                 .setStyle(new Notification.BigTextStyle().bigText(notificationText));
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
