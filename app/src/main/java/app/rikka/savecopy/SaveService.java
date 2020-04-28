@@ -11,6 +11,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -36,7 +40,7 @@ import java.util.Locale;
 
 public class SaveService extends IntentService {
 
-    static final String CALLING_PACKAGE_LABEL = "callingPackageLabel";
+    static final String CALLING_PACKAGE = "callingPackage";
 
     private static final String TAG = "SaveService";
 
@@ -146,8 +150,35 @@ public class SaveService extends IntentService {
         onSave(intent);
     }
 
+    private String getLabel(String packageName) {
+        Resources resources;
+        ApplicationInfo info;
+        try {
+            Configuration configuration = new Configuration();
+            configuration.locale = Locale.ENGLISH;
+            resources = getPackageManager().getResourcesForApplication(packageName);
+            resources.updateConfiguration(configuration, getResources().getDisplayMetrics());
+
+            info = getPackageManager().getApplicationInfo(packageName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+
+        String label;
+        try {
+            if (info.labelRes != 0) label = resources.getString(info.labelRes);
+            else label = info.nonLocalizedLabel.toString();
+        } catch (Resources.NotFoundException | NullPointerException e) {
+            label = info.packageName;
+        }
+        return label;
+    }
+
     private void onSave(Intent intent) {
-        String callingLabel = intent.getStringExtra(CALLING_PACKAGE_LABEL);
+        String callingLabel = null;
+        String callingPackage = intent.getStringExtra(CALLING_PACKAGE);
+        if (callingPackage != null) callingLabel = getLabel(callingPackage);
+
         int[] id = new int[]{Integer.MIN_VALUE};
         try {
             doSave(intent, id, callingLabel);
@@ -190,6 +221,7 @@ public class SaveService extends IntentService {
             }
         }
         Uri tableUri = MediaStore.Files.getContentUri("external");
+        String download = callingLabel != null ? Environment.DIRECTORY_DOWNLOADS + File.separator + callingLabel : Environment.DIRECTORY_DOWNLOADS;
 
         if (Build.VERSION.SDK_INT <= 29) {
             // before Android 11 (actually includes 11 DP2), MediaStore can't name the file correctly, find a name by ourselves
@@ -212,7 +244,7 @@ public class SaveService extends IntentService {
                         if (dataIndex != -1) {
                             File file = new File(cursor.getString(dataIndex));
                             String parent = file.getParent();
-                            if (parent == null || !parent.startsWith(Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS + File.separator)) {
+                            if (parent == null || !parent.startsWith(Environment.getExternalStorageDirectory() + File.separator + download + File.separator)) {
                                 continue;
                             }
                             existingName = file.getName();
@@ -252,7 +284,6 @@ public class SaveService extends IntentService {
         ContentValues values;
         values = new ContentValues();
 
-        String download = callingLabel != null ? Environment.DIRECTORY_DOWNLOADS + File.separator + callingLabel : Environment.DIRECTORY_DOWNLOADS;
         if (Build.VERSION.SDK_INT >= 29) {
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, download);
             values.put(MediaStore.MediaColumns.IS_PENDING, true);

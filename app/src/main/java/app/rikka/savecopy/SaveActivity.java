@@ -4,17 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-
-import java.util.Locale;
 
 public class SaveActivity extends Activity {
 
@@ -40,36 +36,14 @@ public class SaveActivity extends Activity {
         handleIntent();
     }
 
-    private String getLabel(String packageName) throws PackageManager.NameNotFoundException {
-        Configuration configuration = new Configuration();
-        configuration.locale = Locale.ENGLISH;
-        Resources resources = getPackageManager().getResourcesForApplication(packageName);
-        resources.updateConfiguration(configuration, getResources().getDisplayMetrics());
-
-        ApplicationInfo info = getPackageManager().getApplicationInfo(packageName, 0);
-        int labelRes = info.labelRes;
-        String label;
-        try {
-            if (labelRes != 0) label = resources.getString(labelRes);
-            else label = info.nonLocalizedLabel.toString();
-        } catch (Resources.NotFoundException | NullPointerException e) {
-            label = info.packageName;
-        }
-        return label;
-    }
-
     private void handleIntent() {
-        CharSequence callingLabel = null;
-        try {
-            //noinspection ConstantConditions
-            String callingPackage = getReferrer().getAuthority();
-            callingLabel = getLabel(callingPackage);
-        } catch (PackageManager.NameNotFoundException | NullPointerException ignored) {
-        }
+        String callingPackage = null;
+        Uri referrer = getReferrer();
+        if (referrer != null) callingPackage = referrer.getAuthority();
 
         Intent intent = new Intent(getIntent());
         intent.setClassName(this, SaveService.class.getName());
-        intent.putExtra(SaveService.CALLING_PACKAGE_LABEL, callingLabel);
+        intent.putExtra(SaveService.CALLING_PACKAGE, callingPackage);
         startService(intent);
         finish();
     }
