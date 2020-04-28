@@ -257,7 +257,14 @@ public class SaveService extends IntentService {
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
             values.put(MediaStore.MediaColumns.IS_PENDING, true);
         } else {
-            values.put(MediaStore.MediaColumns.DATA, Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS + File.separator + displayName);
+            File parent = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS);
+            values.put(MediaStore.MediaColumns.DATA, new File(parent, displayName).getPath());
+
+            // on lower versions, if the folder doesn't exist, insert will fail
+            // as we have storage permission, just manually create it
+
+            //noinspection ResultOfMethodCallIgnored
+            parent.mkdirs();
         }
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
 
@@ -303,7 +310,7 @@ public class SaveService extends IntentService {
             cr.update(fileUri, values, null, null);
         }
 
-        String newName= displayName;
+        String newName = displayName;
         try (Cursor cursor = cr.query(fileUri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 int displayNameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
