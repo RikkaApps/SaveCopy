@@ -11,6 +11,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -35,6 +39,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class SaveService extends IntentService {
+
+    static final String CALLING_PACKAGE = "callingPackage";
 
     private static final String TAG = "SaveService";
 
@@ -112,6 +118,7 @@ public class SaveService extends IntentService {
 
     public Notification.Builder newNotificationBuilder(String channelId, CharSequence title, CharSequence text) {
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? new Notification.Builder(this, channelId) : new Notification.Builder(this);
+        //noinspection deprecation
         builder.setSmallIcon(R.drawable.ic_notification_24)
                 .setColor(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? getColor(R.color.notification) : getResources().getColor(R.color.notification));
         if (title != null) {
@@ -143,10 +150,38 @@ public class SaveService extends IntentService {
         onSave(intent);
     }
 
+    private String getLabel(String packageName) {
+        Resources resources;
+        ApplicationInfo info;
+        try {
+            Configuration configuration = new Configuration();
+            configuration.locale = Locale.ENGLISH;
+            resources = getPackageManager().getResourcesForApplication(packageName);
+            resources.updateConfiguration(configuration, getResources().getDisplayMetrics());
+
+            info = getPackageManager().getApplicationInfo(packageName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+
+        String label;
+        try {
+            if (info.labelRes != 0) label = resources.getString(info.labelRes);
+            else label = info.nonLocalizedLabel.toString();
+        } catch (Resources.NotFoundException | NullPointerException e) {
+            label = info.packageName;
+        }
+        return label;
+    }
+
     private void onSave(Intent intent) {
+        String callingLabel = null;
+        String callingPackage = intent.getStringExtra(CALLING_PACKAGE);
+        if (callingPackage != null) callingLabel = getLabel(callingPackage);
+
         int[] id = new int[]{Integer.MIN_VALUE};
         try {
-            doSave(intent, id);
+            doSave(intent, id, callingLabel);
         } catch (Throwable e) {
             Log.e(TAG, "save " + intent.getData(), e);
 
@@ -160,7 +195,7 @@ public class SaveService extends IntentService {
         }
     }
 
-    private void doSave(Intent intent, int[] _id) throws IOException, SaveException {
+    private void doSave(Intent intent, int[] _id, String callingLabel) throws IOException, SaveException {
         Context context = this;
         CharSequence notificationTitle, notificationText;
         Notification.Builder builder;
@@ -185,12 +220,8 @@ public class SaveService extends IntentService {
                 }
             }
         }
-        Uri tableUri;
-        if (Build.VERSION.SDK_INT >= 29) {
-            tableUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-        } else {
-            tableUri = MediaStore.Files.getContentUri("external");
-        }
+        Uri tableUri = MediaStore.Files.getContentUri("external");
+        String download = callingLabel != null ? Environment.DIRECTORY_DOWNLOADS + File.separator + callingLabel : Environment.DIRECTORY_DOWNLOADS;
 
         if (Build.VERSION.SDK_INT <= 29) {
             // before Android 11 (actually includes 11 DP2), MediaStore can't name the file correctly, find a name by ourselves
@@ -213,7 +244,7 @@ public class SaveService extends IntentService {
                         if (dataIndex != -1) {
                             File file = new File(cursor.getString(dataIndex));
                             String parent = file.getParent();
-                            if (parent == null || !parent.startsWith(Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS + File.separator)) {
+                            if (parent == null || !parent.startsWith(Environment.getExternalStorageDirectory() + File.separator + download + File.separator)) {
                                 continue;
                             }
                             existingName = file.getName();
@@ -254,10 +285,10 @@ public class SaveService extends IntentService {
         values = new ContentValues();
 
         if (Build.VERSION.SDK_INT >= 29) {
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, download);
             values.put(MediaStore.MediaColumns.IS_PENDING, true);
         } else {
-            File parent = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS);
+            File parent = new File(Environment.getExternalStorageDirectory(), download);
             values.put(MediaStore.MediaColumns.DATA, new File(parent, displayName).getPath());
 
             // on lower versions, if the folder doesn't exist, insert will fail
@@ -322,7 +353,7 @@ public class SaveService extends IntentService {
 
         notificationTitle = getString(R.string.notification_saved_title, displayName);
         notificationText = Html.fromHtml(getString(R.string.notification_saved_text,
-                String.format("<font face=\"sans-serif-medium\">%s/%s</font>", Environment.DIRECTORY_DOWNLOADS, newName)));
+                String.format("<font face=\"sans-serif-medium\">%s/%s</font>", download, newName)));
         builder = newNotificationBuilder(NOTIFICATION_CHANNEL_RESULT, notificationTitle, notificationText)
                 .setStyle(new Notification.BigTextStyle().bigText(notificationText));
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {

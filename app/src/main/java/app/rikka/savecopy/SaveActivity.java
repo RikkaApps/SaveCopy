@@ -37,8 +37,13 @@ public class SaveActivity extends Activity {
     }
 
     private void handleIntent() {
+        String callingPackage = null;
+        Uri referrer = getReferrer();
+        if (referrer != null) callingPackage = referrer.getAuthority();
+
         Intent intent = new Intent(getIntent());
         intent.setClassName(this, SaveService.class.getName());
+        intent.putExtra(SaveService.CALLING_PACKAGE, callingPackage);
         startService(intent);
         finish();
     }
@@ -69,9 +74,7 @@ public class SaveActivity extends Activity {
                             i.setData(Uri.parse("package:" + getPackageName()));
                             startActivity(i);
                         })
-                        .setOnDismissListener((dialog -> {
-                            finish();
-                        }))
+                        .setOnDismissListener((dialog -> finish()))
                         .show();
             }
         }
