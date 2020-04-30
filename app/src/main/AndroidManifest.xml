@@ -46,9 +46,29 @@
             android:theme="@style/AppTheme.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <data
-                    android:mimeType="*/*"
+                    android:mimeType="application/*"
                     android:scheme="content" />
+                <data
+                    android:mimeType="audio/*"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="font/*"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="image/*"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="model/*"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="text/*"
+                    android:scheme="content" />
+                <data
+                    android:mimeType="video/*"
+                    android:scheme="content" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
