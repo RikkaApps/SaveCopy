@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- android.intent.action.APPLICATION_PREFERENCES added from API 24 -->
-    <bool name="enable_public_settings_activity">false</bool>
+    <bool name="config_exportSettingsActivity">false</bool>
 </resources>

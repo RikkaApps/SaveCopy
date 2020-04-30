@@ -6,17 +6,19 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
+        android:maxSdkVersion="29" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
+        android:maxSdkVersion="29" />
 
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/save_a_copy"
+        android:requestLegacyExternalStorage="@bool/config_requestLegacyExternalStorage"
         android:supportsRtl="true"
-        tools:ignore="AllowBackup">
+        tools:ignore="AllowBackup"
+        tools:targetApi="q">
         <activity
             android:name=".SettingsActivity"
             android:excludeFromRecents="true"
@@ -29,7 +31,7 @@
         </activity>
         <activity-alias
             android:name=".SettingsActivityPublic"
-            android:enabled="@bool/enable_public_settings_activity"
+            android:enabled="@bool/config_exportSettingsActivity"
             android:targetActivity=".SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

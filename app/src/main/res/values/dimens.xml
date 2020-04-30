@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <bool name="enable_public_settings_activity">true</bool>
+    <bool name="config_exportSettingsActivity">true</bool>
+    <bool name="config_requestLegacyExternalStorage">true</bool>
 </resources>

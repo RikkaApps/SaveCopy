@@ -25,7 +25,7 @@ public class SaveActivity extends Activity {
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT <= 28) {
+        if (Build.VERSION.SDK_INT >= 23 && (Build.VERSION.SDK_INT <= 28 || (Build.VERSION.SDK_INT == 29 && Build.VERSION.PREVIEW_SDK_INT == 0))) {
             String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
             if (checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED
                     || checkSelfPermission(permissions[1]) != PackageManager.PERMISSION_GRANTED) {
