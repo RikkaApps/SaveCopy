@@ -218,7 +218,7 @@ public class SaveService extends IntentService {
                 }
             }
         }
-        Uri tableUri = MediaStore.Files.getContentUri("external");
+
         String download = Environment.DIRECTORY_DOWNLOADS;
         if (getSharedPreferences(Settings.FILE_NAME, MODE_PRIVATE).getBoolean(Settings.KEY_PREFER_APP_FOLDER, false)) {
             String label = null;
@@ -276,6 +276,13 @@ public class SaveService extends IntentService {
         }
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
 
+        Uri tableUri;
+        if (Build.VERSION.SDK_INT >= 29) {
+            // files insert into Files table will not show in the Download table
+            tableUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+        } else {
+            tableUri = MediaStore.Files.getContentUri("external");
+        }
         Uri fileUri = cr.insert(tableUri, values);
         if (fileUri == null) {
             throw new SaveException("can't insert");
