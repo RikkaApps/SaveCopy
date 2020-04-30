@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    tools:context=".SettingsActivity">
+
+    <Switch
+        android:id="@+id/prefer_app_folder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:paddingStart="?android:dialogPreferredPadding"
+        android:paddingTop="8dp"
+        android:paddingEnd="?android:dialogPreferredPadding"
+        android:paddingBottom="8dp"
+        android:text="@string/settings_prefer_app_folder"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="40dp"
+        android:paddingStart="?android:dialogPreferredPadding"
+        android:paddingTop="8dp"
+        android:paddingEnd="?android:dialogPreferredPadding"
+        android:paddingBottom="8dp"
+        android:text="@string/settings_prefer_app_folder_summary" />
+
+</LinearLayout>

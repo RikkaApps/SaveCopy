@@ -150,7 +150,7 @@ public class SaveService extends IntentService {
         onSave(intent);
     }
 
-    private String getLabel(String packageName) {
+    private String loadLabelForPackage(String packageName) {
         Resources resources;
         ApplicationInfo info;
         try {
@@ -175,13 +175,10 @@ public class SaveService extends IntentService {
     }
 
     private void onSave(Intent intent) {
-        String callingLabel = null;
         String callingPackage = intent.getStringExtra(CALLING_PACKAGE);
-        if (callingPackage != null) callingLabel = getLabel(callingPackage);
-
         int[] id = new int[]{Integer.MIN_VALUE};
         try {
-            doSave(intent, id, callingLabel);
+            doSave(intent, id, callingPackage);
         } catch (Throwable e) {
             Log.e(TAG, "save " + intent.getData(), e);
 
@@ -195,7 +192,7 @@ public class SaveService extends IntentService {
         }
     }
 
-    private void doSave(Intent intent, int[] _id, String callingLabel) throws IOException, SaveException {
+    private void doSave(Intent intent, int[] _id, String callingPackage) throws IOException, SaveException {
         Context context = this;
         CharSequence notificationTitle, notificationText;
         Notification.Builder builder;
@@ -221,7 +218,13 @@ public class SaveService extends IntentService {
             }
         }
         Uri tableUri = MediaStore.Files.getContentUri("external");
-        String download = callingLabel != null ? Environment.DIRECTORY_DOWNLOADS + File.separator + callingLabel : Environment.DIRECTORY_DOWNLOADS;
+        String download = Environment.DIRECTORY_DOWNLOADS;
+        if (getSharedPreferences(Settings.FILE_NAME, MODE_PRIVATE).getBoolean(Settings.KEY_PREFER_APP_FOLDER, false)) {
+            String label = null;
+            if (callingPackage != null) label = loadLabelForPackage(callingPackage);
+
+            download += (label != null ? File.separator + label : "");
+        }
 
         if (Build.VERSION.SDK_INT <= 29) {
             // before Android 11 (actually includes 11 DP2), MediaStore can't name the file correctly, find a name by ourselves

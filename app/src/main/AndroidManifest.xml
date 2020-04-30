@@ -18,11 +18,30 @@
         android:supportsRtl="true"
         tools:ignore="AllowBackup">
         <activity
+            android:name=".SettingsActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.Dialog.Alert">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name=".SettingsActivityPublic"
+            android:enabled="@bool/enable_public_settings_activity"
+            android:targetActivity=".SettingsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity
             android:name=".SaveActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:noHistory="true"
-            android:theme="@style/SaveActivity">
+            android:theme="@style/AppTheme.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <data
@@ -31,6 +50,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <service android:name=".SaveService" />
     </application>
 

@@ -12,6 +12,7 @@ android {
     }
     buildFeatures {
         buildConfig = false
+        viewBinding = true
     }
     signingConfigs {
         sign

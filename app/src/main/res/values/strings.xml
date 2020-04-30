@@ -13,4 +13,6 @@
     <string name="dialog_no_permission_button_app_info">App info</string>
     <string name="notification_action_open">Open copy</string>
     <string name="open_with">Open with</string>
+    <string name="settings_prefer_app_folder">Prefer app folder</string>
+    <string name="settings_prefer_app_folder_summary">Save the copy to Download/&lt;app name&gt;.</string>
 </resources>

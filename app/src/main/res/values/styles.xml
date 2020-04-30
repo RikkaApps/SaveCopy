@@ -7,6 +7,11 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="SaveActivity" parent="@style/Theme.Translucent.NoTitleBar" />
+    <style name="AppTheme.NoDisplay" parent="@style/Theme.Translucent.NoTitleBar" />
+
+    <style name="AppTheme.Dialog.Alert" parent="android:Theme.DeviceDefault.Light.Dialog.Alert">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
 
 </resources>

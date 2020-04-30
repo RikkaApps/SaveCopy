@@ -13,4 +13,6 @@
     <string name="dialog_no_permission_button_app_info">應用程式資訊</string>
     <string name="notification_action_open">開啟副本</string>
     <string name="open_with">開啟方式</string>
+    <string name="settings_prefer_app_folder">偏好應用程式資料夾</string>
+    <string name="settings_prefer_app_folder_summary">將副本儲存至 Download/&lt;應用程式名稱&gt;。</string>
 </resources>
