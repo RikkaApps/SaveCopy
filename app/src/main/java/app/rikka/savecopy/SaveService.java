@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 public class SaveService extends IntentService {
 
@@ -227,48 +228,21 @@ public class SaveService extends IntentService {
         }
 
         if (Build.VERSION.SDK_INT <= 29) {
-            // before Android 11 (actually includes 11 DP2), MediaStore can't name the file correctly, find a name by ourselves
+            // before Android 11 (actually before 11 DP2), MediaStore can't name the file correctly
 
             String[] displayParts = FileUtils.spiltFileName(displayName);
-
-            String[] projection = Build.VERSION.SDK_INT >= 29
-                    ? new String[]{MediaStore.MediaColumns.DISPLAY_NAME}
-                    : new String[]{MediaStore.MediaColumns.DISPLAY_NAME, MediaStore.MediaColumns.DATA};
-            String selection = MediaStore.MediaColumns.DISPLAY_NAME + " like ?";
-            String[] selectionArgs = new String[]{displayParts[0] + "%"};
-
             List<String> existingNames = new ArrayList<>();
-            try (Cursor cursor = cr.query(tableUri, projection, selection, selectionArgs, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int displayNameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
-                    int dataIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
-                    do {
-                        String existingName;
-                        if (dataIndex != -1) {
-                            File file = new File(cursor.getString(dataIndex));
-                            String parent = file.getParent();
-                            if (parent == null || !parent.startsWith(Environment.getExternalStorageDirectory() + File.separator + download + File.separator)) {
-                                continue;
-                            }
-                            existingName = file.getName();
-                        } else if (displayNameIndex != -1) {
-                            existingName = cursor.getString(displayNameIndex);
-                        } else {
-                            existingName = null;
-                        }
-                        if (existingName != null) {
-                            String[] existingParts = FileUtils.spiltFileName(existingName);
-                            boolean add = false;
-                            if (existingName.equals(displayName)) {
-                                add = true;
-                            } else if (displayParts[1].equals(existingParts[1])) {
-                                add = existingParts[0].matches(String.format("%s \\(\\d+\\)", displayParts[0].replaceAll("([\\\\+*?\\[\\](){}|.^$])", "\\\\$1")));
-                            }
-                            if (add) {
-                                existingNames.add(existingName);
-                            }
-                        }
-                    } while (cursor.moveToNext());
+            for (File file : Optional.ofNullable(new File(Environment.getExternalStorageDirectory(), download).listFiles()).orElse(new File[0])) {
+                String name = file.getName();
+                String[] parts = FileUtils.spiltFileName(name);
+                boolean add = false;
+                if (name.equals(displayName)) {
+                    add = true;
+                } else if (displayParts[1].equals(parts[1])) {
+                    add = parts[0].matches(String.format("%s \\(\\d+\\)", displayParts[0].replaceAll("([\\\\+*?\\[\\](){}|.^$])", "\\\\$1")));
+                }
+                if (add) {
+                    existingNames.add(name);
                 }
             }
             if (!existingNames.isEmpty()) {
