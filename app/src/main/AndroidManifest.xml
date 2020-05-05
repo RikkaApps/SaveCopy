@@ -20,6 +20,16 @@
         tools:ignore="AllowBackup"
         tools:targetApi="q">
         <activity
+            android:name=".InfoActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.Dialog.Alert">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.INFO" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".SettingsActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"

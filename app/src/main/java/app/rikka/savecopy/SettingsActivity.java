@@ -11,17 +11,12 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app.rikka.savecopy.databinding.SettingsActivityBinding binding = SettingsActivityBinding.inflate(getLayoutInflater());
+        SettingsActivityBinding binding = SettingsActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         SharedPreferences sharedPreferences = getSharedPreferences(Settings.FILE_NAME, MODE_PRIVATE);
 
         binding.preferAppFolder.setChecked(sharedPreferences.getBoolean(Settings.KEY_PREFER_APP_FOLDER, false));
         binding.preferAppFolder.setOnCheckedChangeListener((buttonView, isChecked) -> sharedPreferences.edit().putBoolean(Settings.KEY_PREFER_APP_FOLDER, isChecked).apply());
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }

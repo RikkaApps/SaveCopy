@@ -1,0 +1,22 @@
+<resources>
+
+    <!-- use android:Theme.NoDisplay cause java.lang.IllegalStateException: Activity did not call finish() prior to onResume() completing -->
+    <style name="Theme.Translucent.NoTitleBar" parent="@android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.NoDisplay" parent="Theme.Translucent.NoTitleBar" />
+
+    <style name="Theme.Light.Dialog.Alert" parent="android:Theme.DeviceDefault.Light.Dialog.Alert">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+
+    <style name="Theme.Dialog.Alert" parent="android:Theme.DeviceDefault.Dialog.Alert">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+
+</resources>

@@ -8,27 +8,31 @@
     android:paddingBottom="8dp"
     tools:context=".SettingsActivity">
 
-    <Switch
-        android:id="@+id/prefer_app_folder"
+    <TextView
+        android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@null"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="1sp"
+        android:paddingStart="?android:dialogPreferredPadding"
+        android:paddingEnd="?android:dialogPreferredPadding"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="14sp"
+        tools:text="@string/introduction" />
+
+    <TextView
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:foreground="?android:selectableItemBackground"
         android:minHeight="56dp"
         android:paddingStart="?android:dialogPreferredPadding"
         android:paddingTop="16dp"
         android:paddingEnd="?android:dialogPreferredPadding"
         android:paddingBottom="16dp"
-        android:text="@string/settings_prefer_app_folder"
+        android:text="@string/settings"
+        android:textColor="?android:textColorPrimary"
         android:textSize="16sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:paddingStart="?android:dialogPreferredPadding"
-        android:paddingEnd="?android:dialogPreferredPadding"
-        android:text="@string/settings_prefer_app_folder_summary" />
 
 </LinearLayout>
