@@ -39,15 +39,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity-alias
-            android:name=".SettingsActivityPublic"
-            android:enabled="@bool/config_exportSettingsActivity"
-            android:targetActivity=".SettingsActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
         <activity
             android:name=".SaveActivity"
             android:excludeFromRecents="true"
