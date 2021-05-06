@@ -73,7 +73,6 @@ public class SaveService extends IntentService {
         });
 
         mNotificationManager = getSystemService(NotificationManager.class);
-        //noinspection ConstantConditions
         onCreateNotificationChannel(mNotificationManager);
 
         startForeground(NOTIFICATION_ID_PROGRESS, onStartForeground());

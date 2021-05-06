@@ -12,6 +12,14 @@
         android:maxSdkVersion="29"
         tools:ignore="ScopedStorage" />
 
+    <queries>
+        <!-- Used to check if SaveCopy is the only one to open the file -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="content" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
