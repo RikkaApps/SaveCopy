@@ -16,6 +16,6 @@
     <string name="settings">設定</string>
     <string name="settings_prefer_app_folder">偏好應用程式資料夾</string>
     <string name="settings_prefer_app_folder_summary">將副本儲存至 Download/&lt;應用程式名稱&gt;。</string>
-    <string name="introduction">此程式將「%1$s」加入至「開啟方式」選單。當您使用「%1$s」開啟檔案時，檔案的副本將被儲存至「Download」資料夾。\n\n刪除原始檔案要求原始程式允許寫入，但幾乎沒有允許寫入的。因此我們沒有提供此功能。\n\n為了保持主螢幕整潔，此程式不會在主螢幕程式中顯示（Android 10 除外）。要解除安裝，請進入系統設定。</string>
+    <string name="introduction">此程式將「%1$s」加入至「開啟方式」及「分享」選單。當您使用「%1$s」開啟或分享檔案時，檔案的副本將被儲存至「Download」資料夾。\n\n為了保持主螢幕整潔，此程式不會在主螢幕程式中顯示（一些系統可能強制應用程式顯示）。要解除安裝，請進入系統設定。</string>
     <string name="dialog_confirmation_message">是否要儲存此檔案的副本？</string>
 </resources>

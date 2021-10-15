@@ -16,6 +16,6 @@
     <string name="settings">Settings</string>
     <string name="settings_prefer_app_folder">Prefer app folder</string>
     <string name="settings_prefer_app_folder_summary">Save the copy to Download/&lt;app name&gt;.</string>
-    <string name="introduction">This app adds the \"%1$s\" action to \"Open with\" menus. When you open a file with \"%1$s\", a copy of the file will be saved to the \"Download\" folder.\n\nDelete original file requires the original app to allow writing, but almost no one does. Therefore we did not provide this feature.\n\nIn order to keep your home clean, this app does not show in the home app (except Android 10). To uninstall, please go to system settings.</string>
+    <string name="introduction">This app adds the \"%1$s\" action to \"Open with\" and \"Share\" menus. When you open or share a file with \"%1$s\", a copy of the file will be saved to the \"Download\" folder.\n\nIn order to keep your home screen clean, this app does not show in the home app (some systems may force the app to show). To uninstall, please go to system settings.</string>
     <string name="dialog_confirmation_message">Save a copy for this file?</string>
 </resources>

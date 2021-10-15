@@ -16,6 +16,6 @@
     <string name="settings">设置</string>
     <string name="settings_prefer_app_folder">偏好应用文件夹</string>
     <string name="settings_prefer_app_folder_summary">将副本保存至 Download/&lt;应用名称&gt;。</string>
-    <string name="introduction">此应用将“%1$s”加入至“打开方式”菜单。当您使用“%1$s”打开文件时，文件的副本将被保存至“Download”文件夹。\n\n删除原始文件要求原始应用允许写入，但几乎没有允许写入的。因此我们没有提供此功能。\n\n为了保持主屏幕整洁，此应用不会在主屏幕应用中显示（Android 10 除外）。要卸载，请进入系统设置。</string>
+    <string name="introduction">此应用将“%1$s”加入至“打开方式”及“分享”菜单。当您使用“%1$s”打开或分享文件时，文件的副本将被保存至“Download”文件夹。\n\n为了保持主屏幕整洁，此应用不会在主屏幕应用中显示（一些系统可能强制应用显示）。要卸载，请进入系统设置。</string>
     <string name="dialog_confirmation_message">是否要保存此文件的副本？</string>
 </resources>
