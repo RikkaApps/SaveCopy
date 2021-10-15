@@ -118,9 +118,8 @@ public class SaveService extends IntentService {
 
     public Notification.Builder newNotificationBuilder(String channelId, CharSequence title, CharSequence text) {
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? new Notification.Builder(this, channelId) : new Notification.Builder(this);
-        //noinspection deprecation
         builder.setSmallIcon(R.drawable.ic_notification_24)
-                .setColor(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? getColor(R.color.notification) : getResources().getColor(R.color.notification));
+                .setColor(getColor(R.color.notification));
         if (title != null) {
             builder.setContentTitle(title);
         }
@@ -177,26 +176,43 @@ public class SaveService extends IntentService {
     private void onSave(Intent intent) {
         String callingPackage = intent.getStringExtra(CALLING_PACKAGE);
         int[] id = new int[]{Integer.MIN_VALUE};
-        try {
-            doSave(intent, id, callingPackage);
-        } catch (Throwable e) {
-            Log.e(TAG, "save " + intent.getData(), e);
 
-            Throwable cause = e.getCause() == null ? e : e.getCause();
-            CharSequence notificationTitle = getString(R.string.notification_error_title);
-            CharSequence notificationText = getString(R.string.notification_error_text) + "\n\n" + cause.getMessage();
+        String action = intent.getAction();
+        String type = intent.getType();
 
-            Notification.Builder builder = newNotificationBuilder(NOTIFICATION_CHANNEL_RESULT, notificationTitle, notificationText)
-                    .setStyle(new Notification.BigTextStyle().bigText(notificationText));
-            scheduleNotification(id[0], builder);
+        List<Uri> list = new ArrayList<>();
+        if (Intent.ACTION_VIEW.equals(action)) {
+            list.add(intent.getData());
+        } else if (Intent.ACTION_SEND.equals(action)) {
+            list.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+            ArrayList<Uri> extras = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            if (extras != null) {
+                list.addAll(extras);
+            }
+        }
+
+        for (Uri data: list) {
+            try {
+                doSave(data, type, id, callingPackage);
+            } catch (Throwable e) {
+                Log.e(TAG, "save " + data, e);
+
+                Throwable cause = e.getCause() == null ? e : e.getCause();
+                CharSequence notificationTitle = getString(R.string.notification_error_title);
+                CharSequence notificationText = getString(R.string.notification_error_text) + "\n\n" + cause.getMessage();
+
+                Notification.Builder builder = newNotificationBuilder(NOTIFICATION_CHANNEL_RESULT, notificationTitle, notificationText)
+                        .setStyle(new Notification.BigTextStyle().bigText(notificationText));
+                scheduleNotification(id[0], builder);
+            }
         }
     }
 
-    private void doSave(Intent intent, int[] _id, String callingPackage) throws IOException, SaveException {
+    private void doSave(Uri data, String type, int[] _id, String callingPackage) throws IOException, SaveException {
         Context context = this;
         CharSequence notificationTitle, notificationText;
         Notification.Builder builder;
-        Uri data = intent.getData();
         if (data == null) {
             throw new SaveException("data is null");
         }
@@ -226,7 +242,7 @@ public class SaveService extends IntentService {
             download += (label != null ? File.separator + label : "");
         }
 
-        if (Build.VERSION.SDK_INT <= 29) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             // before Android 11 (actually before 11 DP2), MediaStore can't name the file correctly
 
             String[] displayParts = FileUtils.spiltFileName(displayName);
@@ -260,7 +276,7 @@ public class SaveService extends IntentService {
         ContentValues values;
         values = new ContentValues();
 
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, download);
             values.put(MediaStore.MediaColumns.IS_PENDING, true);
         } else {
@@ -276,7 +292,7 @@ public class SaveService extends IntentService {
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
 
         Uri tableUri;
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // files insert into Files table will not show in the Download table
             tableUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
         } else {
@@ -344,9 +360,8 @@ public class SaveService extends IntentService {
                     .setSound(Uri.EMPTY)
                     .setVibrate(new long[0]);
         }
-        if (!"application/vnd.android.package-archive".equals(intent.getType())) {
-            String type = intent.getType();
-            Intent newIntent = new Intent(intent)
+        if (!"application/vnd.android.package-archive".equals(type)) {
+            Intent newIntent = new Intent(Intent.ACTION_VIEW)
                     .setComponent(null)
                     .setPackage(null)
                     .setDataAndType(fileUri, type)

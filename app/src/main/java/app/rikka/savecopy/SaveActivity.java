@@ -20,13 +20,15 @@ public class SaveActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!Intent.ACTION_VIEW.equals(getIntent().getAction())) {
+        String action = getIntent().getAction();
+        if (!Intent.ACTION_VIEW.equals(action)
+                && !Intent.ACTION_SEND.equals(action)
+                && !Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             finish();
             return;
         }
 
         getPackageManager().clearPackagePreferredActivities(getPackageName());
-
         checkConfirmation();
     }
 
@@ -44,7 +46,7 @@ public class SaveActivity extends Activity {
     }
 
     private void checkPermission() {
-        if (Build.VERSION.SDK_INT >= 23 && (Build.VERSION.SDK_INT <= 28 || (Build.VERSION.SDK_INT == 29 && Build.VERSION.PREVIEW_SDK_INT == 0))) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
             if (checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED
                     || checkSelfPermission(permissions[1]) != PackageManager.PERMISSION_GRANTED) {

@@ -83,6 +83,27 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <data
+                    android:mimeType="application/*" />
+                <data
+                    android:mimeType="audio/*" />
+                <data
+                    android:mimeType="font/*" />
+                <data
+                    android:mimeType="image/*" />
+                <data
+                    android:mimeType="model/*"/>
+                <data
+                    android:mimeType="text/*" />
+                <data
+                    android:mimeType="video/*" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <service android:name=".SaveService" />
