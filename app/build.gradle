@@ -1,4 +1,9 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file("local.properties").newDataInputStream())
 
 android {
     compileSdk rootProject.ext.targetSdkVersion
@@ -15,7 +20,12 @@ android {
         viewBinding true
     }
     signingConfigs {
-        sign
+        sign {
+            storeFile properties.getProperty("storeFile") != null ? file(properties.getProperty("storeFile")) : android.signingConfigs.debug.storeFile
+            storePassword properties.getProperty("storePassword", android.signingConfigs.debug.storePassword)
+            keyAlias properties.getProperty("keyAlias", android.signingConfigs.debug.keyAlias)
+            keyPassword properties.getProperty("keyPassword", android.signingConfigs.debug.keyPassword)
+        }
     }
     buildTypes {
         debug {
@@ -33,8 +43,17 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    lintOptions.checkReleaseBuilds false
-    dependenciesInfo.includeInApk false
+    packagingOptions {
+        resources {
+            excludes += '**'
+        }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+    }
+    dependenciesInfo {
+        includeInApk false
+    }
 }
 
 android.applicationVariants.all { variant ->
@@ -52,5 +71,3 @@ dependencies {
 
     implementation 'androidx.annotation:annotation:1.2.0'
 }
-
-apply from: rootProject.file('signing.gradle')

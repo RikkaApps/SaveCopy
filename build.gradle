@@ -1,20 +1,3 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
-    }
-}
-
-allprojects {
-    repositories {
-        mavenCentral()
-        google()
-    }
-}
-
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
