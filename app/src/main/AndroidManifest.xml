@@ -32,7 +32,8 @@
             android:name=".InfoActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:theme="@style/AppTheme.Dialog.Alert">
+            android:theme="@style/AppTheme.Dialog.Alert"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.INFO" />
@@ -42,7 +43,8 @@
             android:name=".SettingsActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:theme="@style/AppTheme.Dialog.Alert">
+            android:theme="@style/AppTheme.Dialog.Alert"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
                 <category android:name="android.intent.category.DEFAULT" />

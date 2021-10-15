@@ -356,7 +356,7 @@ public class SaveService extends IntentService {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 openIntent.putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, new ComponentName[]{ComponentName.createRelative(this, SaveActivity.class.getName())});
             }
-            PendingIntent openPendingIntent = PendingIntent.getActivity(this, id, openIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent openPendingIntent = PendingIntent.getActivity(this, id, openIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(new Notification.Action.Builder(
                     Icon.createWithResource(this, R.drawable.ic_notification_open_24),
                     getString(R.string.notification_action_open),
